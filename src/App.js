@@ -1,6 +1,34 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { createStore } from 'redux'
+
+const initialState = {
+  listName: 'Favourite',
+  movies: []
+};
+
+
+function movies(state = initialState, action) {
+  switch (action.type) {
+    case 'ADD':
+      return {
+        ...state, movies: [...state.movies, action.movie]
+      }
+    case 'DELETE':
+      const movies = state.movies.filter(item => item.toLowerCase() !== action.movie.toLowerCase());
+      return {...state, movies }
+    case 'RESET':
+      return {
+        ...state, movies: []
+      }
+    default:
+      return state;
+  }
+}
+
+const store = createStore(movies);
+window.store = store;
 
 function App() {
   return (
