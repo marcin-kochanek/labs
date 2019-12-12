@@ -1,34 +1,15 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { createStore } from 'redux'
+import store from './redux/store';
+import playersActions from './redux/players/actions';
+import clubsActions from './redux/clubs/actions';
 
-const initialState = {
-  listName: 'Favourite',
-  movies: []
-};
-
-
-function movies(state = initialState, action) {
-  switch (action.type) {
-    case 'ADD':
-      return {
-        ...state, movies: [...state.movies, action.movie]
-      }
-    case 'DELETE':
-      const movies = state.movies.filter(item => item.toLowerCase() !== action.movie.toLowerCase());
-      return {...state, movies }
-    case 'RESET':
-      return {
-        ...state, movies: []
-      }
-    default:
-      return state;
-  }
-}
-
-const store = createStore(movies);
 window.store = store;
+
+playersActions.add('Sadio Mane');
+// clubsActions.add('FC Liverpool')
+// playersActions.reset()
 
 function App() {
   return (
