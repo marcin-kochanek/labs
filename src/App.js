@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import ClubsContainer from './containers/ClubsContainer';
+import ClubsContainer from './component/ClubsContainer';
 
 function App() {
   return (
