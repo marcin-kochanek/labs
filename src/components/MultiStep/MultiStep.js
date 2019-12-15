@@ -1,46 +1,96 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from "react";
+import cx from "classnames";
+import styles from "./MultiStep.module.scss";
 
 const WizardContext = React.createContext({
-    currentPage: 1,
-    changePage: () => {}
+  currentPage: 1,
+  changePage: () => {},
+  pageIndexes: [],
+  updatePageIndexes: () => {}
 });
 
-const Page = ({ children, pageIndex }) => {
-    const { currentPage } = useContext(WizardContext);
+const ProgressBar = () => {
+  const { currentPage, pageIndexes } = useContext(WizardContext);
 
-    return (
-        currentPage === pageIndex ? children : null
-    );
+  const innerBarWidth = {
+    transform: `scaleX(${currentPage / pageIndexes.length})`
+  }
+
+  return (
+    <div className={cx([styles.outerWrapper])}>
+      <div style={innerBarWidth} className={cx([styles.innerBar])} />
+    </div>
+  );
+};
+
+const Page = ({ children, pageIndex }) => {
+  const { currentPage, updatePageIndexes } = useContext(WizardContext);
+  useEffect(() => {
+    updatePageIndexes(pageIndex);
+  });
+
+  return currentPage === pageIndex ? children : null;
 };
 
 const Controls = () => {
-    const { currentPage, changePage } = useContext(WizardContext);
+  const { currentPage, changePage, pageIndexes } = useContext(WizardContext);
 
-    return (
-        <>
-            <button className="button is-primary" onClick={() => changePage(currentPage - 1)}>Previous</button>
-            <button className="button is-warning" onClick={() => changePage(currentPage + 1)}>Next</button>
-            <button>Submit</button>
-        </>
-    )
+  return (
+    <div className="columns is-centered">
+      <button
+        disabled={currentPage === 1}
+        className="button is-primary"
+        onClick={() => changePage(currentPage - 1)}
+      >
+        Previous
+      </button>
+      <button
+        disabled={currentPage === pageIndexes.length}
+        className="button is-info"
+        onClick={() => changePage(currentPage + 1)}
+      >
+        Next
+      </button>
+      <button
+        disabled={currentPage !== pageIndexes.length}
+        className="button is-warning"
+      >
+        Submit
+      </button>
+    </div>
+  );
 };
 
 const Wizard = ({ children }) => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const changePage = newPageIndex => setCurrentPage(newPageIndex);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageIndexes, setPageIndexes] = useState([]);
 
-    return (
-        <WizardContext.Provider value={{
-            currentPage,
-            changePage
-        }}>
-            {children}
-        </WizardContext.Provider>
-    )
+  const changePage = newPageIndex => setCurrentPage(newPageIndex);
+  const updatePageIndexes = pageIndex => {
+    if (pageIndexes.includes(pageIndex)) {
+      return;
+    }
+
+    setPageIndexes([...pageIndexes, pageIndex]);
+  };
+
+  return (
+    <WizardContext.Provider
+      value={{
+        currentPage,
+        changePage,
+        pageIndexes,
+        updatePageIndexes
+      }}
+    >
+      {children}
+    </WizardContext.Provider>
+  );
 };
 
 export default {
-    Page,
-    Controls,
-    Wizard
-}
+  ProgressBar,
+  Page,
+  Controls,
+  Wizard
+};
